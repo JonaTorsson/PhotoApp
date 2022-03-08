@@ -1,0 +1,7 @@
+{
+  "email": "Jona@gmail.com",
+  "password": "Password",
+  "first_name": "Jona",
+  "last_name": "Torsson"
+}
+

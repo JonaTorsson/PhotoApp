@@ -1,8 +1,8 @@
 const bcrypt = require('bcrypt');
 const models = require('../models');
-const debug = require('debug')('photos:user_controller');
+const debug = require('debug')('photos:auth_controller');
 const jwt = require('jsonwebtoken');
-const { matchedData, validationResult } = require('exoress-validator');
+const { matchedData, validationResult } = require('express-validator');
 
 /**
  * 
@@ -74,7 +74,7 @@ const login = async (req, res) => {
         name: user.get('first_name') + ' ' + user.get('last_name'),
     }
 
-    const acces_token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET);
+    const access_token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET);
 
     return res.send({
         status: 'success',

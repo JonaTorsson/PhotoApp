@@ -6,8 +6,8 @@ const knex = require('knex')({
 		host: process.env.DB_HOST || 'localhost',
 		port: process.env.DB_PORT || 3306,
 		charset: process.env.DB_CHARSET || 'utf8mb4',
-		database: process.env.DB_NAME || 'photoApp',
-		user: process.env.DB_USER || 'photoApp',
+		database: process.env.DB_NAME || 'PhotoApp',
+		user: process.env.DB_USER || 'PhotoApp',
 		password: process.env.DB_PASSWORD || '',
 	}
 });
@@ -15,11 +15,11 @@ const knex = require('knex')({
 const bookshelf = require('bookshelf')(knex);
 
 const models = {};
-models.User = require('./User')(bookshelf);
-models.Photo = require('./Photo')(bookshelf);
-models.Album = require('./Album')(bookshelf);
+models.user_model = require('./user_model')(bookshelf);
+// models.Photo = require('./Photo')(bookshelf);
+// models.Album = require('./Album')(bookshelf);
 
 module.exports = {
 	bookshelf,
-	...models,
+	...models
 };

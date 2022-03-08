@@ -4,7 +4,6 @@
  */
 
 const bcrypt = require('bcrypt');
-const { login } = require('../controllers/auth_controller');
 
 module.exports = (bookshelf) => {
     return bookshelf.model('user_model', {
