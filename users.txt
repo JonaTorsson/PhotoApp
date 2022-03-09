@@ -5,3 +5,9 @@
   "last_name": "Torsson"
 }
 
+{
+  "email": "Pelle@gmail.com",
+  "password": "secretpassword",
+  "first_name": "Pelle",
+  "last_name": "Svanslos"
+}

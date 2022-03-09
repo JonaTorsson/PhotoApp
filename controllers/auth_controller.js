@@ -57,16 +57,16 @@ const register = async (req, res) => {
  */
 
 const login = async (req, res) => {
-    const { email, password} = req.body;
-
-    const user = await models.user_models.login(email, password);
-
-    if (!user) {
-        return res.status(401).send({
-            status: 'fail',
-            data: 'Authentication falied.',
-        });
-    }
+    const { email, password } = req.body;
+ 
+     
+     const user = await models.user_model.login(email, password);
+     if (!user) {
+         return res.status(401).send({
+             status: 'fail',
+             data: 'Authentication failed.',
+         });
+     }
 
     const payload = {
         sub: user.get('email'),
@@ -74,18 +74,47 @@ const login = async (req, res) => {
         name: user.get('first_name') + ' ' + user.get('last_name'),
     }
 
-    const access_token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET);
+    const access_token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+		expiresIn: process.env.ACCESS_TOKEN_EXPIRES_LIFETIME || '2h',
+	});
+
+    const refresh_token = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+		expiresIn: process.env.REFRESH_TOKEN_SECRET_LIFETIME || '2w',
+	});
 
     return res.send({
         status: 'success',
         data: {
             access_token,
+            refresh_token,
         }
     });
+}
+
+const refresh = (req, res) => {
+    try {
+        const payload = jwt.verify(
+            req.body.token,
+            process.env.REFRESH_TOKEN_SECRET
+        );
+
+        delete payload.iat;
+        delete payload.exp;
+
+        const access_token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+            expiresIn: process.env.REFRESH_TOKEN_SECRET_LIFETIME || '2h',
+        });
+    } catch (error) {
+        return res.send({
+            status: 'fail',
+            data: 'invalid token'
+        });
+    }
 }
 
 
 module.exports = {
     register,
-    login
+    login,
+    refresh,
 }

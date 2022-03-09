@@ -18,6 +18,10 @@ router.post('/register', userValidationRules.createRules, authController.registe
  * Login
  */
 router.post('/login', authController.login);
+/**
+ * Issue a new access token
+ */
+router.post('/refresh', authController.refresh);
 
 /**
  * router links to models
@@ -25,6 +29,6 @@ router.post('/login', authController.login);
  */
 router.use(auth.validateJwtToken);
 // router.use('/albums', require('./album_route'));
-// router.use('/photos', require('./photo_route'));
+router.use('/photos', require('./photo_route'));
 
 module.exports = router;
