@@ -3,7 +3,7 @@
  * 
  */
 
-const debug = require('debug')('myphotos:photo_controller');
+const debug = require('debug')('PhotoApp:photo_controller');
 const { matchedData, validationRules, validationResult } = require('express-validator');
 const models = require('../models');
 
@@ -13,10 +13,10 @@ const models = require('../models');
  * GET /photos
  */
 const getPhotos = async (req, res) => {
-    const user = await models.user_model.fetchById(req.user_model.user_id, { withRelated: ['photos'] });
+    const user = await models.user_model.fetchById(req.user.user_id, { withRelated: ['photos'] });
 
     res.status(200).send({
-        status: 'succes',
+        status: 'success',
         data: user.related('photos'),
     });
 }
@@ -27,11 +27,11 @@ const getPhotos = async (req, res) => {
  * GET /photos/:photoId
  */
 const showPhoto = async (req, res) => {
-    const user = await models.user_model.fetchById(req.user_model.user_id, { withRelated: ['photos'] });
+    const user = await models.user_model.fetchById(req.user.user_id, { withRelated: ['photos'] });
 
     const allPhotos = user.related('photos');
 
-    const photoSpecificId = allPhotos.find(photo => photo.id == req.params.photoSpecificId);
+    const photoSpecificId = allPhotos.find(photo => photo.id == req.params.photoId);
 
     if (!photoSpecificId) {
         res.status(404).send({
@@ -58,9 +58,9 @@ const showPhoto = async (req, res) => {
  * POST /photos
  */
 const addPhoto = async (req, res) => {
-    const user = await models.user_model.fetchById(req.user_model.user_id, { withRelated: ['photos'] });
+    const user = await models.user_model.fetchById(req.user.user_id, { withRelated: ['photos'] });
 
-    const errors = validationRules(req);
+    const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(422).send({ 
             status: 'fail',
@@ -69,7 +69,7 @@ const addPhoto = async (req, res) => {
     }
     const validData = matchedData(req);
 
-    validData.user_id = req.user_model.user_id;
+    validData.user_id = req.user.user_id;
 
     try {
         const photo = await new models.photo_model(validData).save();
@@ -99,7 +99,7 @@ const addPhoto = async (req, res) => {
  * PUT /photos/:photoId
  */
 const updatePhoto = async (req, res) => {
-    const user = await models.user_model.fetchById(req.user_model.user_id, { withRelated: ['photos'] });
+    const user = await models.user_model.fetchById(req.user.user_id, { withRelated: ['photos'] });
 
     const photoId = req.params.photoId;
 
@@ -132,7 +132,7 @@ const updatePhoto = async (req, res) => {
                 url: photo.get('url'),
                 comment: photo.get('comment'),
                 user_id: user.id,
-                id: photo.get(id),
+                id: photo.get('id'),
             }
         });
     } catch (error) {
