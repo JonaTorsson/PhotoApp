@@ -91,30 +91,8 @@ const login = async (req, res) => {
     });
 }
 
-const refresh = (req, res) => {
-    try {
-        const payload = jwt.verify(
-            req.body.token,
-            process.env.REFRESH_TOKEN_SECRET
-        );
-
-        delete payload.iat;
-        delete payload.exp;
-
-        const access_token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-            expiresIn: process.env.REFRESH_TOKEN_SECRET_LIFETIME || '2h',
-        });
-    } catch (error) {
-        return res.send({
-            status: 'fail',
-            data: 'invalid token'
-        });
-    }
-}
-
 
 module.exports = {
     register,
     login,
-    refresh,
 }
