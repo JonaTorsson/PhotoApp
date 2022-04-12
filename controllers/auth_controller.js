@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const models = require('../models');
-const debug = require('debug')('photos:auth_controller');
+const debug = require('debug')('photoApp:auth_controller');
 const jwt = require('jsonwebtoken');
 const { matchedData, validationResult } = require('express-validator');
 

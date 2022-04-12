@@ -3,7 +3,7 @@
  * 
  */
 
-const debug = require('debug')('PhotoApp:album_controller');
+const debug = require('debug')('photoApp:album_controller');
 const { matchedData, validationResult } = require('express-validator');
 const models = require('../models');
 
@@ -26,33 +26,23 @@ const models = require('../models');
  /**
   * GET a specific album
   * 
-  * GET /album/:albumId
+  * GET /albums/:albumId
   */
   const showAlbum = async (req, res) => {
-
-	const user = await models.user_model.fetchById(req.user.user_id, { withRelated: ['albums'] });
-
-	const allAlbums = user.related('albums');
-
-	const albumSpecificId = allAlbums.find(album => album.id == req.params.albumId);
-
-	if (!albumSpecificId) {
-		return res.status(404).send({
-			status: 'error',
-			message: 'Album with that ID was not found',
+	const albumId = req.params.albumId;
+	const user_id = req.user.user_id;
+	const album = await new models.album_model({ id: albumId, user_id: user_id }).fetch({ withRelated: ['photos'], require: false });
+	if (!album) {
+		res.status(404).send({
+			status: 'fail',
+			data: 'Album not found',
+		})
+	} else {
+		res.status(200).send({
+			status: 'success',
+			data: album,
 		});
-	}
-	
-	const photosInThisAlbum = await models.album_model.fetchById(req.params.albumId, { withRelated: ['photos'] });
- 
-	res.status(200).send({
-		status: 'success',
-		data: { 
-			id: albumSpecificId.get('id'),
-			title: albumSpecificId.get('title'),
-			photosInThisAlbum
-		}
-	});
+	};
 };
 
 /**
@@ -149,32 +139,32 @@ const models = require('../models');
  * 
  * POST /albums/:albumId/photos
  */
- const addPhoto = async (req, res) => {
-    // Check for validation error
+const addPhoto = async (req, res) => {
+	// Check for validation error
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
 		return res.status(422).send({ status: 'fail', data: errors.array() });
 	}
 
-    // Just save the requested i asked in validData
+	// Just save the requested i asked in validData
 	const validData = matchedData(req);
 	
-    // Get relation to users album
-	const user = await models.user_model.fetchById(req.user.user_id, { withRelated: ['albums'] });
+	// Get relation to users album
+	const user = await models.user_model.fetchById(req.user.user_id, { withRelated: ['albums', 'photos'] });
 
-    // Get out the relation that's between album and photo
+	// Get out the relation that's between album and photo
 	const album = await models.album_model.fetchById(req.params.albumId, { withRelated: ['photos'] });
 
-    // Get out the requested album
+	// Get out the requested album
 	const userAlbum = user.related('albums').find(album => album.id == req.params.albumId);
 
-    // Get only the photo that belongs to the user who's logged in
+	// Get only the photo that belongs to the user who's logged in
 	const userPhoto = user.related('photos').find(photo => photo.id == validData.photo_id);
 
-    // Check if photo already exists in album
+	// Check if photo already exists in album
 	const existing_photo = album.related('photos').find(photo => photo.id == validData.photo_id);
 
-    // Photo already exists, bail
+	// Photo already exists, bail
 	if (existing_photo) {
 		return res.status(404).send({
 			status: 'fail',
@@ -191,7 +181,7 @@ const models = require('../models');
 		return;
 	}
 
-    // If their is not a user in album or user, bail
+	// If their is not a user in album or user, bail
 	if (!userAlbum || !userPhoto) {
 		return res.status(401).send({
 			status: 'fail',
@@ -202,10 +192,6 @@ const models = require('../models');
 	try {
 		const result = await userAlbum.photos().attach(validData.photo_id);
 		debug("Added photo to Album successfully: %O", result, result.length);
-
-		/*
-		album.photos().attach(validData.photo_id);
-		*/
 
 		res.status(200).send({
 			status: 'success',
@@ -219,7 +205,6 @@ const models = require('../models');
 		});
 		throw error;	
 }};
-
 
 
 

@@ -3,7 +3,7 @@
  * 
  */
 
-const debug = require('debug')('PhotoApp:photo_controller');
+const debug = require('debug')('photoApp:photo_controller');
 const { matchedData, validationRules, validationResult } = require('express-validator');
 const models = require('../models');
 
